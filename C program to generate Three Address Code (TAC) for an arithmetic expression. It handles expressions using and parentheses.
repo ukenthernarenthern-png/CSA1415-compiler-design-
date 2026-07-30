@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char stack[100][20];
+int top = -1;
+int temp = 1;
+
+void push(char str[])
+{
+    strcpy(stack[++top], str);
+}
+
+void pop(char str[])
+{
+    strcpy(str, stack[top--]);
+}
+
+int precedence(char op)
+{
+    if (op == '*' || op == '/')
+        return 2;
+
+    if (op == '+' || op == '-')
+        return 1;
+
+    return 0;
+}
+
+int main()
+{
+    char expr[100];
+    char operators[100];
+    int optop = -1;
+    int i;
+    char a[20], b[20], op[2], tempvar[20];
+
+    printf("Enter expression: ");
+    scanf("%99s", expr);
+
+    for (i = 0; expr[i] != '\0'; i++)
+    {
+        if (isalnum(expr[i]))
+        {
+            char operand[2];
+
+            operand[0] = expr[i];
+            operand[1] = '\0';
+
+            push(operand);
+        }
+        else if (expr[i] == '(')
+        {
+            operators[++optop] = expr[i];
+        }
+        else if (expr[i] == ')')
+        {
+            while (optop >= 0 && operators[optop] != '(')
+            {
+                op[0] = operators[optop--];
+                op[1] = '\0';
+
+                pop(b);
+                pop(a);
+
+                sprintf(tempvar, "t%d", temp++);
+                printf("%s = %s %s %s\n",
+                       tempvar, a, op, b);
+
+                push(tempvar);
+            }
+
+            optop--;
+        }
+        else
+        {
+            while (optop >= 0 &&
+                   precedence(operators[optop]) >= precedence(expr[i]))
+            {
+                op[0] = operators[optop--];
+                op[1] = '\0';
+
+                pop(b);
+                pop(a);
+
+                sprintf(tempvar, "t%d", temp++);
+                printf("%s = %s %s %s\n",
+                       tempvar, a, op, b);
+
+                push(tempvar);
+            }
+
+            operators[++optop] = expr[i];
+        }
+    }
+
+    while (optop >= 0)
+    {
+        op[0] = operators[optop--];
+        op[1] = '\0';
+
+        pop(b);
+        pop(a);
+
+        sprintf(tempvar, "t%d", temp++);
+        printf("%s = %s %s %s\n",
+               tempvar, a, op, b);
+
+        push(tempvar);
+    }
+
+    return 0;
+}
