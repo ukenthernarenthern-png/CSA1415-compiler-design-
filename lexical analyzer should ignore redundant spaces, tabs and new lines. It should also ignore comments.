@@ -1,0 +1,61 @@
+%{
+#include <stdio.h>
+
+int characters = 0;
+int lines = 0;
+int words = 0;
+%}
+
+%option noyywrap
+
+%%
+
+"//".*                  { lines++; }
+"/*"([^*]|\*+[^*/])*\*+"/"  { 
+                            int i;
+                            for(i = 0; yytext[i] != '\0'; i++)
+                                if(yytext[i] == '\n')
+                                    lines++;
+                          }
+
+[ \t]+                  { /* Ignore spaces and tabs */ }
+
+\n                      { lines++; }
+
+\"([^\\\"]|\\.)*\"      { characters += yyleng; words++; }
+
+[a-zA-Z_][a-zA-Z0-9_]*  { characters += yyleng; words++; }
+
+[0-9]+                  { characters += yyleng; words++; }
+
+[+\-*/=<>!&|%]+         { characters += yyleng; words++; }
+
+[(){}\[\],;.#]+         { characters += yyleng; words++; }
+
+.                       { characters++; }
+
+%%
+
+int main()
+{
+    FILE *fp;
+
+    fp = fopen("sample.c", "r");
+
+    if (fp == NULL)
+    {
+        printf("Cannot open sample.c\n");
+        return 1;
+    }
+
+    yyin = fp;
+    yylex();
+
+    fclose(fp);
+
+    printf("\nNumber of Characters: %d\n", characters);
+    printf("Number of Lines: %d\n", lines);
+    printf("Number of Words: %d\n", words);
+
+    return 0;
+}
