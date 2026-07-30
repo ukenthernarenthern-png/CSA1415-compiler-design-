@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <ctype.h>
+
+int main()
+{
+    char input[500];
+    int i = 0;
+    int whitespace = 0;
+    int newline = 0;
+
+    printf("Enter the text:\n");
+    fgets(input, sizeof(input), stdin);
+
+    while (input[i] != '\0')
+    {
+        if (input[i] == '\n')
+        {
+            newline++;
+        }
+        else if (input[i] == ' ' || input[i] == '\t')
+        {
+            whitespace++;
+        }
+
+        i++;
+    }
+
+    printf("\nNumber of whitespaces: %d\n", whitespace);
+    printf("Number of newline characters: %d\n", newline);
+
+    return 0;
+}
